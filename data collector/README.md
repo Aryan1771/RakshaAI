@@ -48,28 +48,28 @@ English, Hindi and Telugu queries are in the config; add other regional queries 
 
 ### India news CCTV pilot
 
-`config.news-cctv.json` configures the NDTV English/Hindi, Times of India and Aaj Tak archive pages supplied for this project. To keep the database, selected source segments, annotation outputs and optional dataset together locally, pass the same `data/news_cctv` path to both `--db` and `--data`:
+`config.news-cctv.json` configures the NDTV English/Hindi, Times of India and Aaj Tak archive pages supplied for this project. To keep the database, selected source segments, annotation outputs and optional dataset together locally, pass the same `dataset/news_cctv` path to both `--db` and `--data`:
 
 ```powershell
-collect --config config.news-cctv.json --db data/news_cctv/collection.sqlite3 --data data/news_cctv discover --limit 100
-collect --config config.news-cctv.json --db data/news_cctv/collection.sqlite3 --data data/news_cctv extract --limit 100
-collect --config config.news-cctv.json --db data/news_cctv/collection.sqlite3 --data data/news_cctv report
+collect --config config.news-cctv.json --db dataset/news_cctv/collection.sqlite3 --data dataset/news_cctv discover --limit 100
+collect --config config.news-cctv.json --db dataset/news_cctv/collection.sqlite3 --data dataset/news_cctv extract --limit 100
+collect --config config.news-cctv.json --db dataset/news_cctv/collection.sqlite3 --data dataset/news_cctv report
 ```
 
-Only archive metadata is collected during discovery/extraction. Before selecting any segment, verify India location, review its source times and media candidate, and record the intended research basis. Segment retrieval obeys robots rules and host access controls; blocked media is left alone. The pilot retains source candidates for audit, but media metadata is not a crash label or permission grant. The local `data/` tree is git-ignored and should not be committed.
+Only archive metadata is collected during discovery/extraction. Before selecting any segment, verify India location, review its source times and media candidate, and record the intended research basis. Segment retrieval obeys robots rules and host access controls; blocked media is left alone. The pilot retains source candidates for audit, but media metadata is not a crash label or permission grant. Local footage under `dataset/` and generated output under `models/runs/` are git-ignored and should not be committed.
 
 ## Optional Indian vehicle-image dataset: UVH-26
 
 [UVH-26](https://huggingface.co/datasets/iisc-aim/UVH-26), released by AIM @ IISc, contains Bengaluru Safe City traffic-camera **images** and COCO vehicle boxes (14 vehicle classes). It is a useful additional source for Indian vehicle detection and traffic-scene representation, alongside the collector's independently reviewed footage sources. It is not a crash-video dataset and supplies no temporal crash labels; keep it separate from `annotate-crash` outputs. The dataset card declares CC BY 4.0; preserve attribution and license information, and confirm the current terms before reuse. The upstream repository is about 90 GB and its dataset viewer reports a metadata/schema issue, so review available files before using it.
 
-Install the Hugging Face CLI (`pip install -U huggingface_hub[cli]`), then preview the destination or explicitly download the upstream files. Pass `--data data/news_cctv` to keep UVH-26 with the India archive pilot:
+Install the Hugging Face CLI (`pip install -U huggingface_hub[cli]`), then preview the destination or explicitly download the upstream files. Pass `--data dataset` so UVH-26 is stored at the shared dataset root:
 
 ```powershell
-collect --db data/news_cctv/collection.sqlite3 --data data/news_cctv dataset-uvh26
-collect --db data/news_cctv/collection.sqlite3 --data data/news_cctv dataset-uvh26 --download
+collect --db dataset/news_cctv/collection.sqlite3 --data dataset dataset-uvh26
+collect --db dataset/news_cctv/collection.sqlite3 --data dataset dataset-uvh26 --download
 ```
 
-Files are stored under `data/news_cctv/datasets/UVH-26/snapshot/`, separate from crash video records, with a source manifest recording revision, file list, size, source and attribution. This dataset supplements the collection; it does not replace the Indian crash-footage sources.
+Files are stored under `dataset/UVH-26/snapshot/`, separate from crash video records, with a source manifest recording revision, file list, size, source and attribution. This dataset supplements the collection; it does not replace the Indian crash-footage sources. `annotate-uvh-available` exports currently downloaded majority-vote vehicle boxes as YOLO sidecars under `dataset/UVH-26/derived/MV_available/labels/`. It never creates crash labels or duplicates source images. `prepare-uvh-available` makes an explicitly partial, exact-duplicate-grouped development split under `dataset/UVH-26/derived/partial_experiment/`; this exploratory validation is not a final test. After the full download completes, use `prepare-uvh` for the complete selection and official-benchmark splits under `dataset/UVH-26/derived/prepared/`. Model checkpoints and run logs go to `models/runs/`.
 
 ## Permission and downloading
 
@@ -168,3 +168,57 @@ Tests cover nested JSON-LD, HTML video/player separation, all adapter patterns, 
 Limitations: no browser-rendering adapter was required/proven necessary in this pilot; `no_static_video` pages need manual inspection. Approximate deduplication is a heuristic, not proof of the same incident. Official-channel discovery requires a YouTube key and public website links. The ~3,000 existing clips have not been imported because their directory was not supplied. Model training needs substantially more verified footage and representative normal/near-miss examples.
 
 Documentation consulted: [YouTube search.list](https://developers.google.com/youtube/v3/docs/search/list), [yt-dlp](https://github.com/yt-dlp/yt-dlp), [Schema.org VideoObject](https://schema.org/VideoObject), [FFmpeg downloads](https://ffmpeg.org/download.html).
+
+## Phase 2 — YOLOv8 + R3D-18
+
+Phase 2 lives in `models/raksha_training/`. It audits Phase 1 and any separately supplied video folder, prepares UVH-26 MV vehicle labels for YOLO, and trains/evaluates a full-scene R3D-18 crash classifier from explicitly reviewed temporal video labels. It does not dispatch alerts. UVH-26 is an image/bounding-box source for vehicle detection, never a crash-video source; do not create video clips by repeating UVH stills. It has 14 vehicle categories and no standalone pedestrian class; this baseline preserves all 14 classes without merging. Its COCO `category_id` values are converted to contiguous YOLO IDs in sorted category order. The MV majority-vote annotation is the selected baseline; the ST alternative is audited but never merged into the same ground truth. Its supplied validation set is retained as a benchmark; a deterministic SHA-grouped validation subset from official train is used for model selection. UVH image records do not provide camera IDs, so the generated split is not camera-disjoint.
+
+### Environment and install
+
+The training versions are pinned for Windows x64 / Python 3.13. The project automatically selects CUDA for training and validation when the CUDA-enabled PyTorch environment is available; CPU workers handle video/image loading and preprocessing, while model execution uses the RTX GPU. Automatic mode falls back to CPU when CUDA is unavailable. The system GPU is an NVIDIA RTX 4060 Laptop (8 GiB). CUDA-enabled PyTorch has not been verified in the current environment; use the following commands to install it before GPU training. Install from the `data collector` directory:
+
+```powershell
+py -3.13 -m venv .venv-phase2
+.\.venv-phase2\Scripts\python.exe -m pip install --upgrade pip
+.\.venv-phase2\Scripts\python.exe -m pip install torch==2.10.0 torchvision==0.25.0 --index-url https://download.pytorch.org/whl/cu128
+.\.venv-phase2\Scripts\python.exe -c "import torch; print(torch.cuda.is_available(), torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'CPU fallback')"
+.\.venv-phase2\Scripts\python.exe -m pip install ultralytics==8.4.173 opencv-python==4.12.0.88 scikit-learn==1.8.0 tensorboard==2.20.0 numpy==2.2.6
+.\.venv-phase2\Scripts\python.exe -m pip freeze > requirements-phase2-lock.txt
+```
+
+Use `requirements-phase2-cu128.txt` as the reference GPU manifest. For CPU-only checks, replace the PyTorch install command with `python -m pip install torch==2.10.0 torchvision==0.25.0 --index-url https://download.pytorch.org/whl/cpu`. FFmpeg/ffprobe are recommended on `PATH`; the audit falls back to OpenCV metadata/frame decoding when ffprobe is unavailable and records the inspection backend. Configuration is in `models/configs/phase2.full.json`; `models/configs/phase2.smoke.json` uses small settings. Paths in the config are relative to the project root, so the checkout can be moved as a unit. Source data stays under ignored `dataset/`; generated caches, checkpoints and reports go under ignored `models/runs/`.
+
+### Audit, prepare, train
+
+```powershell
+.\.venv-phase2\Scripts\python.exe -m models.raksha_training audit --config models/configs/phase2.full.json
+.\.venv-phase2\Scripts\python.exe -m models.raksha_training uvh-audit --config models/configs/phase2.full.json
+.\.venv-phase2\Scripts\python.exe -m models.raksha_training manifest-phase1 --config models/configs/phase2.full.json
+.\.venv-phase2\Scripts\python.exe -m models.raksha_training prepare-uvh --config models/configs/phase2.full.json
+.\.venv-phase2\Scripts\python.exe -m models.raksha_training train-yolo --config models/configs/phase2.full.json
+.\.venv-phase2\Scripts\python.exe -m models.raksha_training train-r3d --variant baseline --config models/configs/phase2.full.json
+.\.venv-phase2\Scripts\python.exe -m models.raksha_training compare-r3d --runs models/runs/phase2/r3d/baseline models/runs/phase2/r3d/class_weighted
+.\.venv-phase2\Scripts\python.exe -m models.raksha_training eval-r3d --checkpoint models/runs/phase2/r3d/baseline/best.pt --split validation --config models/configs/phase2.full.json
+# After freezing the validation-selected threshold and all settings, pass that value explicitly:
+.\.venv-phase2\Scripts\python.exe -m models.raksha_training eval-r3d --checkpoint models/runs/phase2/r3d/baseline/best.pt --split test --threshold $frozenValidationThreshold --final-test --config models/configs/phase2.full.json
+```
+
+Run validation threshold selection and freeze the resulting threshold before one untouched test evaluation. The R3D data export requires a confirmed human label, India provenance, permission/research-basis record, incident ID, source video ID and a local file. Pending Phase 1 labels are excluded. The R3D initializer is TorchVision `R3D_18_Weights.KINETICS400_V1` (generic Kinetics-400 supervised action-recognition pretraining); YOLOv8-S starts from the generic COCO detection checkpoint and adapts the detection head to UVH-26 classes. These are Indian task fine-tuning, not exclusively Indian pretraining. The baseline uses 16 frames sampled at 8 fps across a 2-second span, BGR-to-RGB, 112x112 letterboxing that preserves the full scene, and the selected weights' normalization. Audio is excluded, temporal reversal is disabled, and horizontal flipping defaults to zero.
+
+For a software-only synthetic smoke test (no real clips and no quality claim):
+
+```powershell
+.\.venv-phase2\Scripts\python.exe -m models.raksha_training smoke --config models/configs/phase2.smoke.json
+```
+
+Smoke output is quarantined under `models/runs/smoke/synthetic_only/`. It checks decode, tensor layout, optimizer step, metrics and a one-epoch synthetic YOLO run. It is not a model evaluation. Training variants are one-factor comparisons: `baseline`, `class_weighted`, `balanced_sampling`, or `focal_loss`; don't combine them without a separately registered experiment. Resume R3D with `train-r3d --resume <checkpoint>`. TensorBoard logs and JSONL epoch logs sit next to checkpoints.
+
+### Inference and evaluation cautions
+
+```powershell
+.\.venv-phase2\Scripts\python.exe -m models.raksha_training infer --source path\to\authorized-camera.mp4 --r3d-checkpoint models\runs\phase2\r3d\baseline\best.pt --yolo-checkpoint models\runs\phase2\yolo\yolov8\weights\best.pt --config models/configs/phase2.full.json
+```
+
+`--source` accepts a local video, webcam index (`0`), or an authorized RTSP URL. The full-scene classifier runs independently of YOLO detections. Local prediction JSONL and event-candidate records include timestamps; no emergency dispatch is implemented. `--show` enables rendering and should be off for benchmarks. Run `eval-events` on validation predictions first; it sweeps thresholds while replaying the persistence/rearm rule and reports the recall/burden tradeoff. Apply the selected validation threshold with `infer --positive-threshold $frozenValidationThreshold`, then evaluate test predictions once using `eval-events --annotations <held-out-events.jsonl> --predictions <test-predictions.jsonl> --camera-hours <camera-hours.json> --split test --threshold $frozenValidationThreshold --final-test`. Event recall, false alerts/camera-hour and delay require continuous held-out streams with incident onset, camera identity and observed camera-hours; a clip/window score cannot substitute for those. News edits/watermarks and source-specific graphics require review, and edited news compilations cannot establish live CCTV reliability.
+
+The latest audit found only one Phase 1 assistant-drafted crash annotation, still pending human review and excluded by the training gate; the approximately 3,000 additional clips have not been located under the configured path. Consequently the code can be audited and smoke-tested, but meaningful R3D training/evaluation is blocked until eligible reviewed crash and normal footage are supplied. The current full-data YOLO run was canceled before training started. No scores or trained production checkpoint are claimed by the implementation itself. Official dataset and paper: [UVH-26 dataset card](https://huggingface.co/datasets/iisc-aim/UVH-26), [UVH-26 paper](https://arxiv.org/abs/2511.02563).

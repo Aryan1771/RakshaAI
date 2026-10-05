@@ -1,0 +1,100 @@
+{
+  "seed": 42,
+  "paths": {
+    "phase1_root": "dataset/news_cctv",
+    "existing_clips": "dataset/existing_clips",
+    "uvh26_root": "dataset/UVH-26",
+    "uvh26_prepared_root": "dataset/UVH-26/derived/prepared",
+    "output_root": "models/runs/phase2"
+  },
+  "uvh26": {
+    "variant": "MV",
+    "official_train_json": "UVH-26-Train/UVH-26-MV-Train.json",
+    "official_val_json": "UVH-26-Val/UVH-26-MV-Val.json",
+    "image_search_roots": ["UVH-26-Train", "UVH-26-Val"],
+    "selection_val_fraction": 0.12,
+    "group_exact_duplicates": true,
+    "class_names_source": "COCO categories sorted by source category id; preserve all 14 classes"
+  },
+  "video": {
+    "clip_frames": 16,
+    "sampling_fps": 8.0,
+    "temporal_span_seconds": 2.0,
+    "window_stride_seconds": 1.0,
+    "height": 112,
+    "width": 112,
+    "resize_policy": "letterbox_preserve_full_scene",
+    "short_clip_policy": "repeat_last_frame_and_record_padding",
+    "missing_frame_policy": "skip_window_if_more_than_20_percent_missing",
+    "normalization": "R3D_18_Weights.KINETICS400_V1.transforms mean/std",
+    "horizontal_flip_probability": 0.0,
+    "temporal_reversal": false,
+    "boundary_guard_seconds": 0.5,
+    "positive_overlap_fraction": 0.5,
+    "cache_root": "models/runs/cache"
+  },
+  "yolo": {
+    "model": "models/pretrained/yolov8s.pt",
+    "pretrained_source": "Ultralytics YOLOv8-S COCO detection checkpoint (generic COCO pretraining)",
+    "imgsz": 640,
+    "batch": 8,
+    "epochs": 100,
+    "patience": 20,
+    "optimizer": "AdamW",
+    "lr0": 0.001,
+    "weight_decay": 0.0005,
+    "workers": 4,
+    "amp": true,
+    "device": "auto",
+    "seed": 42,
+    "deterministic": true,
+    "device": "auto",
+    "selection_metric": "metrics/mAP50-95(B)",
+    "augment": {
+      "hsv_h": 0.015,
+      "hsv_s": 0.5,
+      "hsv_v": 0.3,
+      "degrees": 0.0,
+      "translate": 0.1,
+      "scale": 0.5,
+      "fliplr": 0.0,
+      "flipud": 0.0,
+      "mosaic": 1.0,
+      "mixup": 0.0
+    }
+  },
+  "r3d": {
+    "architecture": "torchvision.models.video.r3d_18",
+    "weights_enum": "R3D_18_Weights.KINETICS400_V1",
+    "weights_source": "PyTorch TorchVision Kinetics-400 supervised action recognition; generic pretraining, followed by Indian task fine-tuning",
+    "classes": ["non_crash", "crash"],
+    "batch_size": 4,
+    "head_epochs": 5,
+    "finetune_epochs": 30,
+    "head_lr": 0.001,
+    "backbone_lr": 0.00005,
+    "weight_decay": 0.0001,
+    "amp": true,
+    "workers": 2,
+    "device": "auto",
+    "checkpoint_metric": "validation_average_precision",
+    "recall_target": 0.98,
+    "false_alert_budget_per_camera_hour": 0.1,
+    "thresholds": [0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9],
+    "event_deadline_seconds": 5.0,
+    "early_match_tolerance_seconds": 0.0,
+    "event_merge_gap_seconds": 2.0
+  },
+  "stream": {
+    "reconnect_attempts": 5,
+    "warmup_iterations": 3,
+    "persistence": {
+      "positive_threshold": 0.5,
+      "reset_threshold": 0.2,
+      "persist_count": 2,
+      "history": 3,
+      "reset_count": 2
+    }
+  },
+  "experiments": ["baseline", "class_weighted", "balanced_sampling", "focal_loss", "temporal_sampling"]
+}

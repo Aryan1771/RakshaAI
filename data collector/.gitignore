@@ -1,6 +1,12 @@
 .venv/
+.venv-phase2/
 .env
 data/
+dataset/UVH-26/
+dataset/news_cctv/
+dataset/existing_clips/
+models/runs/
+models/pretrained/*.pt
 work/
 __pycache__/
 *.egg-info/

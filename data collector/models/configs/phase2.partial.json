@@ -1,0 +1,41 @@
+{
+  "seed": 42,
+  "paths": {
+    "uvh26_root": "dataset/UVH-26",
+    "uvh26_partial_root": "dataset/UVH-26/derived/partial_experiment",
+    "output_root": "models/runs/phase2/uvh26_partial"
+  },
+  "uvh26": {
+    "selection_val_fraction": 0.12
+  },
+  "yolo": {
+    "model": "models/pretrained/yolov8s.pt",
+    "pretrained_source": "Generic Ultralytics COCO detection checkpoint; exploratory partial-download run, not final training",
+    "imgsz": 320,
+    "batch": 4,
+    "epochs": 1,
+    "patience": 1,
+    "optimizer": "AdamW",
+    "lr0": 0.001,
+    "weight_decay": 0.0005,
+    "workers": 4,
+    "amp": true,
+    "fraction": 0.1,
+    "seed": 42,
+    "deterministic": true,
+    "device": "auto",
+    "selection_metric": "metrics/mAP50-95(B)",
+    "augment": {
+      "hsv_h": 0.015,
+      "hsv_s": 0.5,
+      "hsv_v": 0.3,
+      "degrees": 0.0,
+      "translate": 0.1,
+      "scale": 0.3,
+      "fliplr": 0.0,
+      "flipud": 0.0,
+      "mosaic": 0.5,
+      "mixup": 0.0
+    }
+  }
+}

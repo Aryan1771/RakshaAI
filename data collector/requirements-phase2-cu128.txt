@@ -1,0 +1,12 @@
+# Intended target: Windows x64, Python 3.13, NVIDIA CUDA 12.8 wheels.
+# Install these first, then install the remaining pinned stack below.
+--index-url https://download.pytorch.org/whl/cu128
+torch==2.10.0
+torchvision==0.25.0
+
+--extra-index-url https://pypi.org/simple
+ultralytics==8.4.173
+opencv-python==4.12.0.88
+scikit-learn==1.8.0
+tensorboard==2.20.0
+numpy==2.2.6

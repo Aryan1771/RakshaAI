@@ -1,16 +1,25 @@
 # Validation record
 
-Validated on 2026-10-05. The collector's training-data scope is restricted to clips verified as recorded in India. A human reviewer must enter `country=India` and provide `location_evidence` before a source can be downloaded or a crash annotation can be created. Permission metadata separates rights-holder/license permission from a reviewer-asserted research basis. Research-basis records can only use the selected-segment downloader; this status records the reviewer's position and is not an automated legal determination. Foreign footage previously held as a separate experiment was removed from this workspace, including source videos and derived annotations/contact sheets. The Wikimedia/Commons ingestion route was removed.
+Validated on 2026-10-05. The project keeps source datasets beneath `dataset/` and the training code/configs beneath `models/`. Phase 1 review material is under `dataset/news_cctv/`. Paths in `models/configs/phase2.full.json` are project-relative.
 
-The original Indian news pilot database retains 25 source-page candidates for audit. It contains no permitted downloads, no human-reviewed Indian clips and no unique verified Indian incidents. Page candidates and publisher metadata are not video files and do not count as verified Indian footage. No video bytes are retained in the collector dataset until India location and reuse permission are documented.
+The Phase 1 audit found 7 readable local videos, 1 exact duplicate group, 6 clips without labels, and 1 assistant-drafted crash label still marked `needs_human_review`. It is excluded from training. The approximately 3,000 additional clips were not found at `dataset/existing_clips/`; there are no independent reviewed crash incidents or human-confirmed normal hours. Camera/day/night/weather/occlusion metadata are unrecorded. `ffprobe` and FFmpeg are absent, so the audit uses OpenCV. News archive candidates are not verified video labels or permission grants.
 
-The gated Nexar repository was not accessed. YouTube discovery did not run because no API key was configured. The existing approximately 3,000 local clips were not imported because their folder was not specified.
+The user canceled the full-data YOLO run before it started. The dataset downloader, preparation watcher, training watcher, and CUDA-wheel transfer were stopped. The earlier exploratory YOLO run was CPU-only and is not a full training result. The request to delete all local copies and UVH-derived artifacts was blocked by the environment's automatic command review; the partial local dataset and ignored exploratory artifacts remain on disk and were not staged or pushed. No full-data YOLO training or test evaluation was run.
 
-UVH-26 by AIM @ IISc is documented as an optional second Indian-traffic data source for vehicle detection. It contains images and COCO bounding boxes, not crash videos; no UVH-26 files have been downloaded. Its Hugging Face card declares CC BY 4.0 and reports an unavailable dataset viewer due to schema metadata; check upstream before selecting files.
+Hardware: Intel Core i7-14650HX (16 cores / 24 threads), NVIDIA RTX 4060 Laptop GPU (8,188 MiB VRAM, driver 617.14), Python 3.13.14, about 400 GiB free disk at the latest check. The existing `.venv` contains PyTorch 2.10.0+cpu and torchvision 0.25.0+cpu. The system recognizes the RTX 4060, but PyTorch CUDA was not installed or verified in the training environment. The full YOLO run was canceled and did not start.
 
-News-archive segment download is available through `download-segment`. Unit tests verify the requested range is passed to yt-dlp, overlong output is rejected, and selected-segment provenance is recorded. Actual website downloads were not run during this validation.
+Checks completed:
 
-Run the test suite from `data collector`:
+- `python -m compileall -q models.raksha_training raksha_collector`: passed.
+- `python -m pytest -q`: 60 passed.
+- `python -m models.raksha_training smoke --config models/configs/phase2.smoke.json`: passed on CPU, using synthetic videos only. It exercised video decode, an R3D-18 optimizer/validation step, one synthetic YOLO epoch, and combined inference. Its metrics do not measure accident performance.
+- Synthetic-only smoke testing passed earlier; it is not a real accident-model evaluation.
+
+An exploratory YOLOv8-S run completed on CPU: one epoch at 320 px, batch 4, using 10% of a partial training selection and its validation split. Its low metrics were a pipeline check only and are not suitable for deployment or final conclusions. No untouched test evaluation has been run. No full-data training run is active.
+
+R3D-18 training/evaluation remains blocked because no human-reviewed, permitted crash/normal video set is available. No crash recall, event delay or production claim is made.
+
+Run tests from the `data collector` directory:
 
 ```powershell
 .\.venv\Scripts\python.exe -m pytest -q

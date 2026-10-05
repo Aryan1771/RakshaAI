@@ -1,0 +1,47 @@
+{
+  "seed": 42,
+  "paths": {"output_root": "models/runs/smoke"},
+  "video": {
+    "clip_frames": 16,
+    "sampling_fps": 8.0,
+    "temporal_span_seconds": 2.0,
+    "window_stride_seconds": 1.0,
+    "height": 64,
+    "width": 64,
+    "resize_policy": "letterbox_preserve_full_scene",
+    "short_clip_policy": "repeat_last_frame_and_record_padding",
+    "missing_frame_policy": "skip_window_if_more_than_20_percent_missing",
+    "horizontal_flip_probability": 0.0,
+    "temporal_reversal": false
+  },
+  "r3d": {
+    "architecture": "torchvision.models.video.r3d_18",
+    "weights_enum": null,
+    "classes": ["non_crash", "crash"],
+    "batch_size": 1,
+    "head_epochs": 1,
+    "finetune_epochs": 0,
+    "head_lr": 0.001,
+    "backbone_lr": 0.00005,
+    "weight_decay": 0.0001,
+    "amp": false,
+    "workers": 0,
+    "checkpoint_metric": "validation_average_precision"
+  },
+  "yolo": {
+    "model": "yolov8n.yaml",
+    "pretrained_source": "random initialization for synthetic pipeline smoke test only",
+    "imgsz": 64,
+    "batch": 1,
+    "epochs": 1,
+    "patience": 1,
+    "optimizer": "SGD",
+    "lr0": 0.001,
+    "workers": 0,
+    "amp": false,
+    "seed": 42,
+    "deterministic": true,
+    "device": "cpu",
+    "selection_metric": "metrics/mAP50-95(B)"
+  }
+}

@@ -12,7 +12,8 @@ def test_uvh26_preview_does_not_download(tmp_path, monkeypatch):
     result = datasets.import_uvh26(tmp_path, download=False)
     assert result["dataset"] == "iisc-aim/UVH-26"
     assert result["downloaded"] is False
-    assert not (tmp_path / "datasets/UVH-26/snapshot").exists()
+    assert Path(result["path"]) == tmp_path / "UVH-26"
+    assert not (tmp_path / "UVH-26/snapshot").exists()
 
 
 def test_uvh26_download_writes_provenance(tmp_path, monkeypatch):

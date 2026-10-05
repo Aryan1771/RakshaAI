@@ -18,7 +18,8 @@ def import_uvh26(destination, revision="main", download=True, hf="hf"):
     """
     if not revision or any(c.isspace() for c in revision):
         raise ValueError("Provide a valid Hugging Face revision")
-    root = Path(destination).resolve() / "datasets" / "UVH-26"
+    # Store this source at the dataset root directly: <project>/dataset/UVH-26.
+    root = Path(destination).resolve() / "UVH-26"
     root.mkdir(parents=True, exist_ok=True)
     manifest_path = root / "source_manifest.json"
     if not download:
