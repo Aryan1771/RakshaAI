@@ -1,0 +1,41 @@
+{
+  "host_interval_seconds": 2,
+  "retries": 2,
+  "max_archive_pages": 5,
+  "city": "",
+  "state": "",
+  "publisher": "",
+  "published_after": "",
+  "published_before": "",
+  "sources": [
+    {
+      "adapter": "ndtv",
+      "enabled": true,
+      "archives": [
+        "https://www.ndtv.com/topic/accident-caught-on-cctv",
+        "https://www.ndtv.com/topic/cctv-accident"
+      ],
+      "candidates": [
+        "https://www.ndtv.com/video/telangana-crash-cctv-captures-speeding-car-ramming-into-two-wheeler-leaving-2-critically-injured-1069818"
+      ]
+    },
+    {
+      "adapter": "ndtv_hindi",
+      "enabled": true,
+      "archives": ["https://ndtv.in/topic/road-accident-cctv"]
+    },
+    {
+      "adapter": "toi",
+      "enabled": true,
+      "archives": ["https://timesofindia.indiatimes.com/topic/Road-accident/videos"]
+    },
+    {
+      "adapter": "aajtak",
+      "enabled": true,
+      "archives": ["https://www.aajtak.in/topic/cctv"],
+      "candidates": [
+        "https://www.aajtak.in/india/maharashtra/video/mumbai-road-accident-car-bike-clash-2-people-died-incident-caught-on-cctv-maharashtra-1334786-2021-10-01"
+      ]
+    }
+  ]
+}

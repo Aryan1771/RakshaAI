@@ -1,0 +1,43 @@
+{
+  "host_interval_seconds": 2,
+  "retries": 2,
+  "max_archive_pages": 1,
+  "youtube_max_search_calls": 2,
+  "city": "",
+  "state": "",
+  "publisher": "",
+  "published_after": "",
+  "published_before": "",
+  "queries": [
+    "CCTV road accident India",
+    "motorcycle collision CCTV Hyderabad",
+    "junction accident CCTV Bengaluru",
+    "vehicle collision CCTV Delhi",
+    "सड़क हादसा सीसीटीवी",
+    "बाइक कार टक्कर सीसीटीवी",
+    "రోడ్డు ప్రమాదం సీసీటీవీ"
+  ],
+  "youtube_publishers": [
+    {"name": "NDTV", "website": "https://www.ndtv.com/"},
+    {"name": "India Today", "website": "https://www.indiatoday.in/"}
+  ],
+  "sources": [
+    {
+      "adapter": "ndtv",
+      "enabled": true,
+      "archives": ["https://www.ndtv.com/topic/accident-caught-on-cctv", "https://www.ndtv.com/topic/cctv-accident"],
+      "candidates": ["https://www.ndtv.com/video/telangana-crash-cctv-captures-speeding-car-ramming-into-two-wheeler-leaving-2-critically-injured-1069818"]
+    },
+    {
+      "adapter": "indiatoday",
+      "enabled": true,
+      "archives": ["https://www.indiatoday.in/videos"],
+      "candidates": ["https://www.indiatoday.in/india/video/speeding-truck-loses-control-after-tyre-burst-and-crashes-into-divider-in-dehradun-cctv-footage-goes-viral-2879497-2026-03-09"]
+    },
+    {"adapter": "ndtv_hindi", "enabled": false, "archives": ["https://ndtv.in/topic/road-accident-cctv"]},
+    {"adapter": "toi", "enabled": false, "archives": ["https://timesofindia.indiatimes.com/topic/Road-accident/videos"]},
+    {"adapter": "aajtak", "enabled": false, "archives": ["https://www.aajtak.in/topic/cctv"], "candidates": ["https://www.aajtak.in/india/maharashtra/video/mumbai-road-accident-car-bike-clash-2-people-died-incident-caught-on-cctv-maharashtra-1334786-2021-10-01"]},
+    {"adapter": "tv9", "enabled": false, "archives": ["https://tv9telugu.com/videos"]},
+    {"adapter": "indianexpress", "enabled": false, "archives": [], "candidates": ["https://indianexpress.com/article/cities/delhi/watch-car-knocks-down-60-year-old-woman-in-east-delhi-driver-arrested-6490123/"]}
+  ]
+}

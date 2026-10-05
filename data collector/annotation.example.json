@@ -1,0 +1,19 @@
+{
+  "review_status": "pending",
+  "decision": "needs_review",
+  "country": "India",
+  "city": null,
+  "state": null,
+  "event_date": null,
+  "location_evidence": "Describe the source or landmarks that verify the event was recorded in India",
+  "original_footage_owner": null,
+  "footage_type": "unknown",
+  "camera_viewpoint": "unknown",
+  "impact_visibility": "unknown",
+  "lighting": "unknown",
+  "weather": "unknown",
+  "occlusion": "unknown",
+  "event_start": null,
+  "event_end": null,
+  "notes": "Inspect provenance, lead-up, impact, aftermath, speed changes and edits before including."
+}

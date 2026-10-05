@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "raksha-collector"
+version = "0.1.0"
+description = "Traceable, permission-gated Indian road footage collection"
+requires-python = ">=3.11"
+dependencies = ["requests>=2.32,<3", "beautifulsoup4>=4.12,<5", "yt-dlp>=2026.3.3", "Pillow>=11,<13", "ImageHash>=4.3,<5", "python-dotenv>=1,<2"]
+
+[project.optional-dependencies]
+test = ["pytest>=8,<10"]
+
+[project.scripts]
+raksha-collect = "raksha_collector.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["raksha_collector*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
