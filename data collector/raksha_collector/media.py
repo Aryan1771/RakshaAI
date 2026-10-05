@@ -213,7 +213,7 @@ def download_news_segment(store, record, client, root, start, end, media_index=N
         record["download"] = {"status": "downloaded", "local_path": str(output.resolve()),
                               "checksum": checksum(output), "completed_at": now(), **info}
         record["source_segment"] = {"start_seconds": float(start), "end_seconds": float(end),
-                                    "media_index": index, "method": "yt-dlp_download_ranges",
+                                    "media_index": index, "method": "ffmpeg_bounded_url_seek_transcode",
                                     "requested_duration": requested}
         record["transformations"].append({"kind": "news_archive_segment", **record["source_segment"], "created_at": now()})
         store.save(record, "news_segment_download")
