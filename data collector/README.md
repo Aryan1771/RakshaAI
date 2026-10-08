@@ -5,13 +5,14 @@ Resumable footage discovery, permission tracking, local review and crash annotat
 ## Setup (PowerShell)
 
 ```powershell
-Set-Location 'C:\Users\aryan\Documents\GitHub\RakshaAI\data collector'
+# From the repository root:
+Set-Location 'data collector'
 py -3.13 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -e '.[test]'
 Copy-Item .env.example .env  # only if you do not already have .env
 ```
 
-Python 3.11+ works. Install FFmpeg and ffprobe using a build linked from https://ffmpeg.org/download.html, then set `FFMPEG` and `FFPROBE` to their full executable paths in `.env`, or put both on PATH. A local installation has been configured for this checkout in the ignored `work/tools` directory. Neither tool is committed. `.env` is ignored. Put `YOUTUBE_API_KEY` there only if using YouTube discovery.
+Python 3.11+ works. Install FFmpeg and ffprobe using a build linked from https://ffmpeg.org/download.html, then set `FFMPEG` and `FFPROBE` to their full executable paths in `.env`, or put both on PATH. Development tooling may be stored in the ignored `work/tools` directory; configure paths for your own checkout. Neither tool is committed. `.env` is ignored. Put `YOUTUBE_API_KEY` there only if using YouTube discovery.
 
 For the following commands, define this helper once in your PowerShell session:
 
